@@ -28,6 +28,7 @@ ControlLines::ControlLines() {
     setInputIndex(RID::D, 1, 5);
     setInputIndex(RID::Lcd, 1, 6);
     setInput(RID::F, 7 << inputDemuxes[1] | getLine(Line::set_flags));
+    setInput(RID::None, 0);
 
     setOutputIndex(RID::Mem, 0, 1);
     setOutputIndex(RID::Temp, 0, 2);
@@ -41,6 +42,8 @@ ControlLines::ControlLines() {
     setOutputIndex(RID::PcL, 1, 2);
     setOutputIndex(RID::D, 1, 3);
     setOutputIndex(RID::F, 1, 4);
+    setOutputIndex(RID::Prog, 1, 5);
+    setOutput(RID::None, 0);
 
     setLineIndex(Line::carry, ControlLines::aluStart + 4);
     setLineIndex(Line::logic, 16);
@@ -105,4 +108,3 @@ void ControlLines::setAluLine(Line line, std::uint32_t value, bool logic, bool c
         | (logic ? getLine(Line::logic) : 0)
         | (carry ? getLine(Line::carry) : 0));
 }
-

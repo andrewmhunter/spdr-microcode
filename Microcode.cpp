@@ -1,7 +1,9 @@
 #include "Microcode.hpp"
+#include <SpdrFirmware/Flag.hpp>
 #include <sstream>
 #include <fstream>
 #include <cstdint>
+#include <format>
 
 void Microcode::buildMicroInstruction(
     const Micro& instructions,
@@ -37,16 +39,42 @@ void Microcode::buildMicrocode(
     const MicroSequence& instruction,
     MicrocodeInstruction& micro
 ) {
-        for (auto flags : FlagSet::getAllCombinations()) {
-            buildPath(instruction.micros.at(flags), micro[flags.intoInt()]);
-        }
+    for (auto flags : FlagSet::getAllCombinations()) {
+        buildPath(instruction.micros.at(flags), micro[flags.intoInt()]);
+    }
 }
 
 Microcode::Microcode() {
-    for (auto& instruction : instructionSet.instructions) {
+    for (auto& instruction : instructionSet.getInstructions()) {
         this->microcode.push_back({});
         auto& micro = this->microcode.back();
         buildMicrocode(instruction, micro);
+
+        int minCycles = 0xff;
+        int maxCycles = 0;
+        for (auto& flagSet : FlagSet::getAllCombinations()) {
+            int cycleCount = instruction.micros.at(flagSet).size();
+
+            if (cycleCount < minCycles) {
+                minCycles = cycleCount;
+            }
+
+            if (cycleCount > maxCycles) {
+                maxCycles = cycleCount;
+            }
+        }
+
+        std::cout << std::format("", instruction.opcode);
+
+        std::stringstream ss{};
+        instruction.instruction.print(ss, "val");
+
+        std::cout << std::format("{:02x} {:16} {:2}", instruction.opcode, ss.str(), minCycles);
+
+        if (minCycles != maxCycles) {
+            std::cout << std::format("/{}", maxCycles);
+        }
+        std::cout << "\n";
     }
 }
 
